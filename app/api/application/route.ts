@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import mongoose from "mongoose";
 
 import { AppModel } from "@/lib/schemas/app";
 import { validateAppCreate, ValidateAppInput, validateAppUpdate } from "@/lib/validators/app";
@@ -41,6 +42,12 @@ export const GET = async (request: NextRequest) => {
         const id = searchParams.get("id");
 
         if (id) {
+            const isValidId = mongoose.isValidObjectId(id);
+
+            if (!isValidId) {
+                return NextResponse.json({ error: "Invalid application ID" }, { status: 400 });
+            }
+
             const app = await AppModel.findOne({ _id: id, deletedAt: null }).exec();
 
             if (!app) {
@@ -116,8 +123,15 @@ export const DELETE = async (request: NextRequest) => {
         await MongoService.connect();
 
         const id = request.nextUrl.searchParams.get("id");
+
         if (!id) {
             return NextResponse.json({ error: "id is required in query string" }, { status: 400 });
+        }
+
+        const isValidId = mongoose.isValidObjectId(id);
+
+        if (!isValidId) {
+            return NextResponse.json({ error: "Invalid application ID" }, { status: 400 });
         }
 
         const app = await AppModel.findOneAndUpdate({ _id: id, deletedAt: null }, { $set: { deletedAt: new Date() } }, { new: true }).exec();
