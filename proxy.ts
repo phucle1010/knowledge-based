@@ -2,21 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 import { ratelimiter } from "@/lib/middlewares/rate-limiter";
-import { validateEnvironment } from "@/lib/utils/env-validation";
 
 export async function proxy(request: NextRequest) {
-    try {
-        validateEnvironment();
-    } catch (error) {
-        return NextResponse.json(
-            {
-                error: "Environment configuration error",
-                message: error instanceof Error ? error.message : "Unknown error",
-            },
-            { status: 500 }
-        );
-    }
-
     if (request.nextUrl.pathname.startsWith("/api")) {
         const ip = request.headers.get("x-forwarded-for")?.split(",")[0] ?? "127.0.0.1";
 
