@@ -29,7 +29,7 @@ const interviewMessageSchema = new mongoose.Schema(
         },
         content: { type: String, required: true },
         role: { type: String, required: true, enum: ["user", "system"] },
-        replied_message_id: { type: String, required: true },
+        replied_message_id: { type: String, required: false },
         user_id: { type: String, required: true },
         deletedAt: { type: Date, default: null },
     },

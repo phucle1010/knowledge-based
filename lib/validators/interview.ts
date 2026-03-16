@@ -143,8 +143,8 @@ export const validateInterviewMessageCreate = (
         return { success: false, error: "role is required and must be either 'user' or 'system'" };
     }
 
-    const replied_message_id = typeof body.replied_message_id === "string" ? body.replied_message_id.trim() : "";
-    if (!replied_message_id) {
+    const replied_message_id = typeof body.replied_message_id === "string" ? body.replied_message_id.trim() : undefined;
+    if (replied_message_id != undefined && !replied_message_id) {
         return { success: false, error: "replied_message_id is required and must be a non-empty string" };
     }
 
@@ -153,7 +153,7 @@ export const validateInterviewMessageCreate = (
         return { success: false, error: "user_id is required and must be a non-empty string" };
     }
 
-    return { success: true, data: { sessionId, content, role, replied_message_id, user_id } };
+    return { success: true, data: { sessionId, content, role, replied_message_id: replied_message_id || "", user_id } };
 };
 
 export const validateInterviewMessageUpdate = (

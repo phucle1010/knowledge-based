@@ -1,5 +1,9 @@
+import mongoose from "mongoose";
+
+import { InterviewMessageModel } from "@/lib/schemas/interview";
 import { ENV } from "@/lib/constants/env";
 
+import { MongoService } from "@/services/mongo.service";
 import { MilvusService } from "@/services/milvus.service";
 
 import { InterviewLevel, InterviewLanguage } from "@/types/interview.type";
@@ -48,28 +52,23 @@ export class GroqService {
         sessionId: string,
         content: string,
         role: "user" | "system",
-        repliedMessageId: string,
+        repliedMessageId: string | undefined,
         userId: string
     ): Promise<{ id: string; content: string }> {
-        const response = await fetch(`${ENV.BASE_URL}/api/interview/message`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                sessionId,
-                content,
-                role,
-                replied_message_id: repliedMessageId,
-                user_id: userId,
-            }),
+        await MongoService.connect();
+
+        const message = await InterviewMessageModel.create({
+            sessionId: new mongoose.Types.ObjectId(sessionId),
+            content,
+            role,
+            replied_message_id: repliedMessageId,
+            user_id: userId,
         });
 
-        if (!response.ok) {
-            throw new Error(`Failed to save message: ${response.status} ${response.statusText}`);
-        }
-
-        return await response.json();
+        return {
+            id: message._id.toString(),
+            content: message.content,
+        };
     }
 
     static async saveUserAnswer(sessionId: string, content: string, repliedMessageId: string, userId: string): Promise<void> {
@@ -82,33 +81,46 @@ export class GroqService {
         sessionId: string,
         userId: string
     ): Promise<{ question: string; questionId: string }> {
-        const isVietnamese = language === "vietnamese";
-        const systemPrompt = `You are an AI interviewer conducting a technical interview. 
+        try {
+            console.log("Starting generateInitialQuestion", { level, language, sessionId, userId });
+
+            const isVietnamese = language === "vietnamese";
+            const systemPrompt = `You are an AI interviewer conducting a technical interview.
         Generate an initial question appropriate for a ${level} level candidate.
         The question should be in ${isVietnamese ? "Vietnamese" : "English"} and test fundamental knowledge for that level.
         Keep it concise and professional.`;
 
-        const messages: GroqMessage[] = [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: `Generate an initial interview question for a ${level} level candidate.` },
-        ];
+            const messages: GroqMessage[] = [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: `Generate an initial interview question for a ${level} level candidate.` },
+            ];
 
-        const question = await this.callGroqAPI(messages);
+            console.log("Calling Groq API...");
+            const question = await this.callGroqAPI(messages);
+            console.log("Groq API response:", question.substring(0, 100) + "...");
 
-        const messageData = await this.saveMessage(sessionId, question, "system", "", userId);
+            console.log("Saving message to database...");
+            const messageData = await this.saveMessage(sessionId, question, "system", undefined, userId);
+            console.log("Message saved:", messageData.id);
 
-        await MilvusService.insertVector({
-            type: "question",
-            sessionId,
-            userId,
-            content: question,
-            level,
-            language,
-            timestamp: new Date(),
-            questionId: messageData.id,
-        });
+            console.log("Saving vector to Milvus...");
+            await MilvusService.insertVector({
+                type: "question",
+                sessionId,
+                userId,
+                content: question,
+                level,
+                language,
+                timestamp: new Date(),
+                questionId: messageData.id,
+            });
+            console.log("Vector saved to Milvus");
 
-        return { question, questionId: messageData.id };
+            return { question, questionId: messageData.id };
+        } catch (error) {
+            console.error(" Error in generateInitialQuestion:", error);
+            throw error;
+        }
     }
 
     static async generateNextQuestion(
