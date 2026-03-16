@@ -1,6 +1,7 @@
 import { MilvusClient, DataType } from "@zilliz/milvus2-sdk-node";
 
 import { ENV } from "@/lib/constants/env";
+import { logger } from "@/lib/utils/logger";
 
 interface VectorMetadata {
     type: "question" | "answer";
@@ -71,7 +72,7 @@ export class MilvusService {
             return `Collection ${this.COLLECTION_NAME} is created successfully`;
         } catch (error) {
             const message = `Failed to create collection ${this.COLLECTION_NAME}: ${JSON.stringify(error)}`;
-            console.error(message);
+            logger.error(message);
             throw new Error(message);
         }
     }
@@ -111,7 +112,7 @@ export class MilvusService {
                 ],
             });
         } catch (error) {
-            console.error("Failed to insert vector:", error);
+            logger.error("Failed to insert vector:", error);
             throw new Error(`Failed to insert vector: ${error}`);
         }
     }
@@ -143,7 +144,7 @@ export class MilvusService {
                 metadata: result.entity.metadata,
             }));
         } catch (error) {
-            console.error("Failed to search vectors:", error);
+            logger.error("Failed to search vectors:", error);
             throw new Error(`Failed to search vectors: ${error}`);
         }
     }
@@ -158,7 +159,7 @@ export class MilvusService {
 
             return null;
         } catch (error) {
-            console.error("Failed to find similar answer:", error);
+            logger.error("Failed to find similar answer:", error);
             return null;
         }
     }

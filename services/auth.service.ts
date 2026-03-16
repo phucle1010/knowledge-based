@@ -4,6 +4,7 @@ import crypto from "crypto";
 
 import { UserModel } from "@/lib/schemas/auth";
 import { ENV } from "@/lib/constants/env";
+import { logger } from "@/lib/utils/logger";
 
 import { MongoService } from "@/services/mongo.service";
 
@@ -69,8 +70,10 @@ export class AuthService {
         await MongoService.connect();
 
         // Check if user already exists
+        logger.debug("Checking if user exists", { email });
         const existingUser = await UserModel.findOne({ email, deletedAt: null });
         if (existingUser) {
+            logger.warn("Registration failed: User already exists", { email });
             throw new Error("User already exists with this email");
         }
 
@@ -82,6 +85,7 @@ export class AuthService {
         const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
         // Create user
+        logger.debug("Creating new user", { email, name });
         const user = await UserModel.create({
             email,
             name,
@@ -90,8 +94,11 @@ export class AuthService {
             emailVerificationExpires,
         });
 
+        const userId = user._id.toString();
+        logger.info("User registered successfully", { userId, email, name });
+
         return {
-            id: user._id.toString(),
+            id: userId,
             ...user.toJSON(),
         };
     }
@@ -103,14 +110,17 @@ export class AuthService {
         await MongoService.connect();
 
         // Find user
+        logger.debug("Finding user for login", { email });
         const user = await UserModel.findOne({ email, deletedAt: null });
         if (!user) {
+            logger.warn("Login failed: User not found", { email });
             throw new Error("Invalid email or password");
         }
 
         // Verify password
         const isPasswordValid = await this.verifyPassword(password, user.password);
         if (!isPasswordValid) {
+            logger.warn("Login failed: Invalid password", { userId: user._id.toString() });
             throw new Error("Invalid email or password");
         }
 
@@ -119,11 +129,15 @@ export class AuthService {
 
         // Save refresh token
         user.refreshTokens.push(tokens.refreshToken);
+        logger.debug("Saving refresh token", { userId: user._id.toString() });
         await user.save();
+
+        const userId = user._id.toString();
+        logger.info("User logged in successfully", { userId, email });
 
         return {
             user: {
-                id: user._id.toString(),
+                id: userId,
                 email: user.email,
                 name: user.name,
                 isEmailVerified: user.isEmailVerified,
