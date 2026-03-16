@@ -1,5 +1,7 @@
 import { ENV } from "@/lib/constants/env";
 
+import { MilvusService } from "@/services/milvus.service";
+
 import { InterviewLevel, InterviewLanguage } from "@/types/interview.type";
 
 interface GroqMessage {
@@ -17,7 +19,7 @@ interface GroqResponse {
 
 export class GroqService {
     private static readonly API_URL = "https://api.groq.com/openai/v1/chat/completions";
-    private static readonly MODEL = ENV.GROQ_MODEL; // Hoặc model khác của Groq
+    private static readonly MODEL = ENV.GROQ_MODEL;
 
     private static async callGroqAPI(messages: GroqMessage[]): Promise<string> {
         const response = await fetch(this.API_URL, {
@@ -48,7 +50,7 @@ export class GroqService {
         role: "user" | "system",
         repliedMessageId: string,
         userId: string
-    ): Promise<void> {
+    ): Promise<{ id: string; content: string }> {
         const response = await fetch(`${ENV.BASE_URL}/api/interview/message`, {
             method: "POST",
             headers: {
@@ -66,13 +68,20 @@ export class GroqService {
         if (!response.ok) {
             throw new Error(`Failed to save message: ${response.status} ${response.statusText}`);
         }
+
+        return await response.json();
     }
 
     static async saveUserAnswer(sessionId: string, content: string, repliedMessageId: string, userId: string): Promise<void> {
         await this.saveMessage(sessionId, content, "user", repliedMessageId, userId);
     }
 
-    static async generateInitialQuestion(level: InterviewLevel, language: InterviewLanguage, sessionId: string, userId: string): Promise<string> {
+    static async generateInitialQuestion(
+        level: InterviewLevel,
+        language: InterviewLanguage,
+        sessionId: string,
+        userId: string
+    ): Promise<{ question: string; questionId: string }> {
         const isVietnamese = language === "vietnamese";
         const systemPrompt = `You are an AI interviewer conducting a technical interview. 
         Generate an initial question appropriate for a ${level} level candidate.
@@ -86,9 +95,20 @@ export class GroqService {
 
         const question = await this.callGroqAPI(messages);
 
-        await this.saveMessage(sessionId, question, "system", "", userId);
+        const messageData = await this.saveMessage(sessionId, question, "system", "", userId);
 
-        return question;
+        await MilvusService.insertVector({
+            type: "question",
+            sessionId,
+            userId,
+            content: question,
+            level,
+            language,
+            timestamp: new Date(),
+            questionId: messageData.id,
+        });
+
+        return { question, questionId: messageData.id };
     }
 
     static async generateNextQuestion(
@@ -100,7 +120,7 @@ export class GroqService {
         previousAnswers: string[],
         currentAnswer: string,
         lastMessageId: string
-    ): Promise<string> {
+    ): Promise<{ question: string; questionId: string }> {
         const isVietnamese = language === "vietnamese";
         const conversationHistory = previousQuestions.map((q, i) => `Question ${i + 1}: ${q}\nAnswer ${i + 1}: ${previousAnswers[i]}`).join("\n\n");
 
@@ -119,9 +139,20 @@ export class GroqService {
 
         const question = await this.callGroqAPI(messages);
 
-        await this.saveMessage(sessionId, question, "system", lastMessageId, userId);
+        const messageData = await this.saveMessage(sessionId, question, "system", lastMessageId, userId);
 
-        return question;
+        await MilvusService.insertVector({
+            type: "question",
+            sessionId,
+            userId,
+            content: question,
+            level,
+            language,
+            timestamp: new Date(),
+            questionId: messageData.id,
+        });
+
+        return { question, questionId: messageData.id };
     }
 
     static async evaluateResponse(
