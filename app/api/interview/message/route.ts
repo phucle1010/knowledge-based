@@ -25,7 +25,7 @@ export const POST = async (request: NextRequest) => {
             sessionId: validation.data.sessionId,
             content: validation.data.content,
             role: validation.data.role,
-            replied_message_id: validation.data.replied_message_id,
+            ...(validation.data.replied_message_id ? { replied_message_id: validation.data.replied_message_id } : {}),
             user_id: validation.data.user_id,
         });
 
