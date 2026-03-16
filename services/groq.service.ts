@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import { InterviewMessageModel } from "@/lib/schemas/interview";
+import { InterviewMessageModel, InterviewSessionModel } from "@/lib/schemas/interview";
 import { ENV } from "@/lib/constants/env";
 
 import { MongoService } from "@/services/mongo.service";
@@ -82,28 +82,47 @@ export class GroqService {
         userId: string
     ): Promise<{ question: string; questionId: string }> {
         try {
-            console.log("Starting generateInitialQuestion", { level, language, sessionId, userId });
+            console.log("🚀 Starting generateInitialQuestion", { level, language, sessionId, userId });
+
+            // Get session information to access job title
+            await MongoService.connect();
+            const session = await InterviewSessionModel.findOne({
+                _id: new mongoose.Types.ObjectId(sessionId),
+                deletedAt: null,
+            }).exec();
+
+            if (!session) {
+                throw new Error(`Interview session not found: ${sessionId}`);
+            }
+
+            const jobTitle = session.title;
+            console.log("📋 Session found:", { jobTitle, level, language });
 
             const isVietnamese = language === "vietnamese";
-            const systemPrompt = `You are an AI interviewer conducting a technical interview.
-        Generate an initial question appropriate for a ${level} level candidate.
-        The question should be in ${isVietnamese ? "Vietnamese" : "English"} and test fundamental knowledge for that level.
-        Keep it concise and professional.`;
+            const systemPrompt = `You are an AI interviewer conducting a technical interview for a ${jobTitle} position.
+        Generate an initial question appropriate for a ${level} level ${jobTitle} candidate.
+        IMPORTANT: Respond ONLY in ${isVietnamese ? "Vietnamese" : "English"}. Do not mix languages or include any text in other languages like Chinese, Japanese, etc.
+        The question should be written entirely in ${isVietnamese ? "Vietnamese" : "English"} and test fundamental knowledge required for the ${jobTitle} role at ${level} level.
+        Focus on core skills, technologies, and concepts essential for a ${jobTitle}.
+        Keep it concise and professional. Use only ${isVietnamese ? "Vietnamese" : "English"} words and terminology.`;
 
             const messages: GroqMessage[] = [
                 { role: "system", content: systemPrompt },
-                { role: "user", content: `Generate an initial interview question for a ${level} level candidate.` },
+                {
+                    role: "user",
+                    content: `Generate an initial interview question for a ${level} level ${jobTitle} candidate. Respond only in ${isVietnamese ? "Vietnamese" : "English"}.`,
+                },
             ];
 
-            console.log("Calling Groq API...");
+            console.log("📡 Calling Groq API...");
             const question = await this.callGroqAPI(messages);
-            console.log("Groq API response:", question.substring(0, 100) + "...");
+            console.log("✅ Groq API response:", question.substring(0, 100) + "...");
 
-            console.log("Saving message to database...");
+            console.log("💾 Saving message to database...");
             const messageData = await this.saveMessage(sessionId, question, "system", undefined, userId);
-            console.log("Message saved:", messageData.id);
+            console.log("✅ Message saved:", messageData.id);
 
-            console.log("Saving vector to Milvus...");
+            console.log("🗄️ Saving vector to Milvus...");
             await MilvusService.insertVector({
                 type: "question",
                 sessionId,
@@ -114,11 +133,11 @@ export class GroqService {
                 timestamp: new Date(),
                 questionId: messageData.id,
             });
-            console.log("Vector saved to Milvus");
+            console.log("✅ Vector saved to Milvus");
 
             return { question, questionId: messageData.id };
         } catch (error) {
-            console.error(" Error in generateInitialQuestion:", error);
+            console.error("❌ Error in generateInitialQuestion:", error);
             throw error;
         }
     }
@@ -133,16 +152,31 @@ export class GroqService {
         currentAnswer: string,
         lastMessageId: string
     ): Promise<{ question: string; questionId: string }> {
+        // Get session information to access job title
+        await MongoService.connect();
+
+        const session = await InterviewSessionModel.findOne({
+            _id: new mongoose.Types.ObjectId(sessionId),
+            deletedAt: null,
+        }).exec();
+
+        if (!session) {
+            throw new Error(`Interview session not found: ${sessionId}`);
+        }
+
+        const jobTitle = session.title;
         const isVietnamese = language === "vietnamese";
         const conversationHistory = previousQuestions.map((q, i) => `Question ${i + 1}: ${q}\nAnswer ${i + 1}: ${previousAnswers[i]}`).join("\n\n");
 
-        const systemPrompt = `You are an AI interviewer. Based on the conversation history and the latest answer, 
-        generate the next appropriate question for a ${level} level candidate.
-        The question should be in ${isVietnamese ? "Vietnamese" : "English"}, progressively more challenging, and test deeper understanding.
+        const systemPrompt = `You are an AI interviewer conducting a ${jobTitle} interview. Based on the conversation history and the latest answer,
+        generate the next appropriate question for a ${level} level ${jobTitle} candidate.
+        IMPORTANT: Respond ONLY in ${isVietnamese ? "Vietnamese" : "English"}. Do not mix languages or include any text in other languages like Chinese, Japanese, etc.
+        The question should be written entirely in ${isVietnamese ? "Vietnamese" : "English"}, progressively more challenging, and test deeper understanding of ${jobTitle} concepts and skills.
+        Focus on technologies, frameworks, and best practices relevant to the ${jobTitle} role.
         If the candidate is struggling, provide easier questions. If doing well, increase difficulty.
-        Keep it concise and professional.`;
+        Keep it concise and professional. Use only ${isVietnamese ? "Vietnamese" : "English"} words and terminology.`;
 
-        const userPrompt = `Conversation history:\n${conversationHistory}\n\nLatest answer: ${currentAnswer}\n\nGenerate the next question.`;
+        const userPrompt = `Conversation history:\n${conversationHistory}\n\nLatest answer: ${currentAnswer}\n\nGenerate the next question for a ${jobTitle} position. Respond only in ${isVietnamese ? "Vietnamese" : "English"}.`;
 
         const messages: GroqMessage[] = [
             { role: "system", content: systemPrompt },
@@ -181,9 +215,10 @@ export class GroqService {
         const isVietnamese = language === "vietnamese";
         const systemPrompt = `You are an expert interviewer evaluating a candidate's response.
         Provide a detailed evaluation including score (1-10), feedback, strengths, and weaknesses.
-        Be constructive and specific. Response should be in ${isVietnamese ? "Vietnamese" : "English"}.`;
+        IMPORTANT: Respond ONLY in ${isVietnamese ? "Vietnamese" : "English"}. Do not mix languages or include any text in other languages.
+        Be constructive and specific. Write the entire response in ${isVietnamese ? "Vietnamese" : "English"} only.`;
 
-        const userPrompt = `Question: ${question}\n\nAnswer: ${answer}\n\nLevel: ${level}\n\nPlease evaluate this response.`;
+        const userPrompt = `Question: ${question}\n\nAnswer: ${answer}\n\nLevel: ${level}\n\nPlease evaluate this response in ${isVietnamese ? "Vietnamese" : "English"} only.`;
 
         const messages: GroqMessage[] = [
             { role: "system", content: systemPrompt },
@@ -253,7 +288,8 @@ export class GroqService {
         const isVietnamese = language === "vietnamese";
         const systemPrompt = `You are an expert interviewer providing final assessment.
         Analyze the entire interview and provide overall score, analytics, and advice.
-        Be comprehensive but concise. Response should be in ${isVietnamese ? "Vietnamese" : "English"}.`;
+        IMPORTANT: Respond ONLY in ${isVietnamese ? "Vietnamese" : "English"}. Do not mix languages or include any text in other languages.
+        Be comprehensive but concise. Write the entire response in ${isVietnamese ? "Vietnamese" : "English"} only.`;
 
         const userPrompt = `Interview Level: ${level}\n\nConversation Summary:\n${conversationSummary}\n\nProvide final assessment with overall score, analytics, and advice.`;
 
