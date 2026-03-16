@@ -7,6 +7,7 @@ import { MongoService } from "@/services/mongo.service";
 import { MilvusService } from "@/services/milvus.service";
 
 import { InterviewLevel, InterviewLanguage } from "@/types/interview.type";
+import { logger } from "@zilliz/milvus2-sdk-node";
 
 interface GroqMessage {
     role: "system" | "user" | "assistant";
@@ -82,7 +83,7 @@ export class GroqService {
         userId: string
     ): Promise<{ question: string; questionId: string }> {
         try {
-            console.log("🚀 Starting generateInitialQuestion", { level, language, sessionId, userId });
+            logger.info("Starting generateInitialQuestion", { level, language, sessionId, userId });
 
             // Get session information to access job title
             await MongoService.connect();
@@ -96,7 +97,7 @@ export class GroqService {
             }
 
             const jobTitle = session.title;
-            console.log("📋 Session found:", { jobTitle, level, language });
+            logger.info("Session found:", { jobTitle, level, language });
 
             const isVietnamese = language === "vietnamese";
             const systemPrompt = `You are an AI interviewer conducting a technical interview for a ${jobTitle} position.
@@ -114,15 +115,15 @@ export class GroqService {
                 },
             ];
 
-            console.log("📡 Calling Groq API...");
+            logger.info("Calling Groq API...");
             const question = await this.callGroqAPI(messages);
-            console.log("✅ Groq API response:", question.substring(0, 100) + "...");
+            logger.info("Groq API response:", question.substring(0, 100) + "...");
 
-            console.log("💾 Saving message to database...");
+            logger.info("Saving message to database...");
             const messageData = await this.saveMessage(sessionId, question, "system", undefined, userId);
-            console.log("✅ Message saved:", messageData.id);
+            logger.info("Message saved:", messageData.id);
 
-            console.log("🗄️ Saving vector to Milvus...");
+            logger.info("Saving vector to Milvus...");
             await MilvusService.insertVector({
                 type: "question",
                 sessionId,
@@ -133,11 +134,11 @@ export class GroqService {
                 timestamp: new Date(),
                 questionId: messageData.id,
             });
-            console.log("✅ Vector saved to Milvus");
+            logger.info("Vector saved to Milvus");
 
             return { question, questionId: messageData.id };
         } catch (error) {
-            console.error("❌ Error in generateInitialQuestion:", error);
+            console.error("Error in generateInitialQuestion:", error);
             throw error;
         }
     }

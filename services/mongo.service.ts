@@ -1,6 +1,7 @@
 import mongoose, { ConnectionStates } from "mongoose";
 
 import { ENV } from "@/lib/constants/env";
+import { logger } from "@/lib/utils/logger";
 
 export class MongoService {
     private static instance: typeof mongoose | null = null;
@@ -16,7 +17,7 @@ export class MongoService {
         }
 
         try {
-            console.info("Connecting to MongoDB...");
+            logger.info("Connecting to MongoDB...");
 
             const connectionOptions = {
                 bufferCommands: false,
@@ -29,7 +30,7 @@ export class MongoService {
             const client = await mongoose.connect(ENV.MONGODB_URI, connectionOptions);
 
             this.instance = client;
-            console.info("MongoDB connected successfully");
+            logger.info("MongoDB connected successfully");
 
             return this.instance;
         } catch (error) {
@@ -48,7 +49,7 @@ export class MongoService {
                 userFriendlyMessage = "Database host not found. Please check your MongoDB URI.";
             }
 
-            console.error(`MongoDB Connection Error: ${errorMessage}`);
+            logger.error(`MongoDB Connection Error: ${errorMessage}`);
             throw new Error(userFriendlyMessage);
         }
     }
@@ -57,7 +58,7 @@ export class MongoService {
         if (this.instance) {
             await mongoose.disconnect();
             this.instance = null;
-            console.info("Disconnected from MongoDB");
+            logger.info("Disconnected from MongoDB");
         }
     }
 }
