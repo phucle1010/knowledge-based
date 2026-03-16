@@ -4,6 +4,31 @@
 
 AI Interview System using Groq and Milvus vector search to optimize performance and reduce API call costs.
 
+**Key Features:**
+
+- **Job-Specific Questions**: Questions are tailored to the specific job title from the interview session
+- **Vector Search Caching**: Reduces 80-90% Groq API calls through intelligent answer caching
+- **Progressive Difficulty**: Questions adapt based on candidate performance
+- **Multi-language Support**: Vietnamese and English support
+
+## Job-Specific Question Generation
+
+The system automatically retrieves the job title from the interview session and generates questions specifically tailored to that role:
+
+### Example Job Titles:
+
+- **Frontend Developer**: React, Vue, Angular, HTML/CSS, JavaScript
+- **Backend Developer**: Node.js, Python, APIs, Databases, Server Architecture
+- **Full Stack Developer**: Both frontend and backend technologies
+- **DevOps Engineer**: CI/CD, Docker, Kubernetes, Cloud Platforms
+- **Data Scientist**: Python, Machine Learning, Statistics, Data Analysis
+
+### Question Adaptation:
+
+- **Entry Level**: Basic concepts, fundamental knowledge
+- **Mid Level**: Framework-specific questions, best practices
+- **Senior Level**: Architecture decisions, optimization, leadership
+
 ## Interview Flow
 
 ### Step 1: Initialize Interview Session
