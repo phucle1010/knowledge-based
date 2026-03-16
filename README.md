@@ -1,5 +1,7 @@
 # Knowledge-Based Interview AI System
 
+![AI Core System](./system/AI-core-system.png)
+
 A comprehensive AI-powered interview platform with vector search capabilities and JWT authentication.
 
 ## Setup
