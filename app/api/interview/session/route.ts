@@ -24,6 +24,8 @@ export const POST = async (request: NextRequest) => {
         const session = await InterviewSessionModel.create({
             title: validation.data.title,
             level: validation.data.level,
+            user_id: validation.data.user_id,
+            language: validation.data.language,
         });
 
         return NextResponse.json(session.toJSON(), { status: 201 });

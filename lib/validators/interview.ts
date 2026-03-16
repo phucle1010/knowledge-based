@@ -3,11 +3,14 @@ import mongoose from "mongoose";
 export type ValidateInterviewSessionInput = {
     title?: string;
     level?: string;
+    user_id?: string;
+    language?: string;
 };
 
 export type ValidateInterviewMessageInput = {
     sessionId?: string;
     content?: string;
+    role?: "user" | "system";
     replied_message_id?: string;
     user_id?: string;
 };
@@ -37,7 +40,9 @@ const isNonEmptyString = (value: unknown): value is string => typeof value === "
 
 const validateObjectId = (id: unknown): boolean => typeof id === "string" && mongoose.isValidObjectId(id);
 
-export const validateInterviewSessionCreate = (body: ValidateInterviewSessionInput): ValidateResult<{ title: string; level: string }> => {
+export const validateInterviewSessionCreate = (
+    body: ValidateInterviewSessionInput
+): ValidateResult<{ title: string; level: string; user_id: string; language: string }> => {
     const title = typeof body.title === "string" ? body.title.trim() : "";
     if (!title) {
         return { success: false, error: "title is required and must be a non-empty string" };
@@ -51,11 +56,26 @@ export const validateInterviewSessionCreate = (body: ValidateInterviewSessionInp
         return { success: false, error: `level must be one of: ${ALLOWED_LEVELS.join(", ")}` };
     }
 
-    return { success: true, data: { title, level } };
+    const user_id = typeof body.user_id === "string" ? body.user_id.trim() : "";
+    if (!user_id) {
+        return { success: false, error: "user_id is required and must be a non-empty string" };
+    }
+
+    const language = typeof body.language === "string" ? body.language.trim() : "";
+    if (!language) {
+        return { success: false, error: "language is required and must be a non-empty string" };
+    }
+    if (!["vietnamese", "english"].includes(language)) {
+        return { success: false, error: "language must be either 'vietnamese' or 'english'" };
+    }
+
+    return { success: true, data: { title, level, user_id, language } };
 };
 
-export const validateInterviewSessionUpdate = (body: ValidateInterviewSessionInput): ValidateResult<{ title?: string; level?: string }> => {
-    const update: { title?: string; level?: string } = {};
+export const validateInterviewSessionUpdate = (
+    body: ValidateInterviewSessionInput
+): ValidateResult<{ title?: string; level?: string; user_id?: string; language?: string }> => {
+    const update: { title?: string; level?: string; user_id?: string; language?: string } = {};
 
     if (typeof body.title === "string") {
         const title = body.title.trim();
@@ -76,8 +96,27 @@ export const validateInterviewSessionUpdate = (body: ValidateInterviewSessionInp
         update.level = level;
     }
 
-    if (!update.title && !update.level) {
-        return { success: false, error: "At least one of title or level must be provided" };
+    if (typeof body.user_id === "string") {
+        const user_id = body.user_id.trim();
+        if (!user_id) {
+            return { success: false, error: "user_id must be a non-empty string when provided" };
+        }
+        update.user_id = user_id;
+    }
+
+    if (typeof body.language === "string") {
+        const language = body.language.trim();
+        if (!language) {
+            return { success: false, error: "language must be a non-empty string when provided" };
+        }
+        if (!["vietnamese", "english"].includes(language)) {
+            return { success: false, error: "language must be either 'vietnamese' or 'english'" };
+        }
+        update.language = language;
+    }
+
+    if (!update.title && !update.level && !update.user_id && !update.language) {
+        return { success: false, error: "At least one of title, level, user_id, or language must be provided" };
     }
 
     return { success: true, data: update };
@@ -85,7 +124,7 @@ export const validateInterviewSessionUpdate = (body: ValidateInterviewSessionInp
 
 export const validateInterviewMessageCreate = (
     body: ValidateInterviewMessageInput
-): ValidateResult<{ sessionId: string; content: string; replied_message_id: string; user_id: string }> => {
+): ValidateResult<{ sessionId: string; content: string; role: "user" | "system"; replied_message_id: string; user_id: string }> => {
     const sessionId = typeof body.sessionId === "string" ? body.sessionId.trim() : "";
     if (!sessionId) {
         return { success: false, error: "sessionId is required and must be a non-empty string" };
@@ -99,6 +138,11 @@ export const validateInterviewMessageCreate = (
         return { success: false, error: "content is required and must be a non-empty string" };
     }
 
+    const role = body.role;
+    if (!role || !["user", "system"].includes(role)) {
+        return { success: false, error: "role is required and must be either 'user' or 'system'" };
+    }
+
     const replied_message_id = typeof body.replied_message_id === "string" ? body.replied_message_id.trim() : "";
     if (!replied_message_id) {
         return { success: false, error: "replied_message_id is required and must be a non-empty string" };
@@ -109,13 +153,13 @@ export const validateInterviewMessageCreate = (
         return { success: false, error: "user_id is required and must be a non-empty string" };
     }
 
-    return { success: true, data: { sessionId, content, replied_message_id, user_id } };
+    return { success: true, data: { sessionId, content, role, replied_message_id, user_id } };
 };
 
 export const validateInterviewMessageUpdate = (
     body: ValidateInterviewMessageInput
-): ValidateResult<Partial<{ sessionId: string; content: string; replied_message_id: string; user_id: string }>> => {
-    const update: Partial<{ sessionId: string; content: string; replied_message_id: string; user_id: string }> = {};
+): ValidateResult<Partial<{ sessionId: string; content: string; role: "user" | "system"; replied_message_id: string; user_id: string }>> => {
+    const update: Partial<{ sessionId: string; content: string; role: "user" | "system"; replied_message_id: string; user_id: string }> = {};
 
     if (typeof body.sessionId === "string") {
         const sessionId = body.sessionId.trim();
@@ -134,6 +178,13 @@ export const validateInterviewMessageUpdate = (
             return { success: false, error: "content must be a non-empty string when provided" };
         }
         update.content = content;
+    }
+
+    if (body.role !== undefined) {
+        if (!["user", "system"].includes(body.role)) {
+            return { success: false, error: "role must be either 'user' or 'system' when provided" };
+        }
+        update.role = body.role;
     }
 
     if (typeof body.replied_message_id === "string") {

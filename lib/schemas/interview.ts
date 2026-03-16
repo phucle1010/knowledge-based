@@ -4,6 +4,8 @@ const interviewSessionSchema = new mongoose.Schema(
     {
         title: { type: String, required: true },
         level: { type: String, required: true },
+        user_id: { type: String, required: true },
+        language: { type: String, required: true },
         deletedAt: { type: Date, default: null },
     },
     {
@@ -26,6 +28,7 @@ const interviewMessageSchema = new mongoose.Schema(
             required: true,
         },
         content: { type: String, required: true },
+        role: { type: String, required: true, enum: ["user", "system"] },
         replied_message_id: { type: String, required: true },
         user_id: { type: String, required: true },
         deletedAt: { type: Date, default: null },

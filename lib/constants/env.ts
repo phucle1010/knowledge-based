@@ -3,4 +3,7 @@ export const ENV = {
     MONGODB_URI: process.env.NEXT_PUBLIC_MONGODB_URI!,
     UPSTASH_REDIS_URL: process.env.NEXT_PUBLIC_UPSTASH_REDIS_URL!,
     UPSTASH_REDIS_TOKEN: process.env.NEXT_PUBLIC_UPSTASH_REDIS_TOKEN!,
+    GROQ_API_KEY: process.env.NEXT_PUBLIC_GROQ_API_KEY!,
+    GROQ_MODEL: process.env.NEXT_PUBLIC_GROQ_MODEL!,
+    BASE_URL: process.env.NEXT_PUBLIC_BASE_URL!,
 } as const;
