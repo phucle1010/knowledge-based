@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Geist } from "next/font/google";
 
 import { validateEnvironment } from "@/lib/utils/env-validation";
+import { cn } from "@/lib/utils/style";
+
+import { AuthProvider } from "@/providers";
 
 import "./globals.css";
+
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 validateEnvironment();
 
@@ -33,8 +38,10 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-            <body className={`${inter.variable} antialiased`}>{children}</body>
+        <html lang="en" className={cn("font-sans", geist.variable)}>
+            <body className={`${inter.variable} antialiased`}>
+                <AuthProvider>{children}</AuthProvider>
+            </body>
         </html>
     );
 }

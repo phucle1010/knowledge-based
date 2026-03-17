@@ -20,11 +20,23 @@ interface VectorMetadata {
 }
 
 export class MilvusService {
-    private static client = new MilvusClient({ address: ENV.MILVUS_ADDRESS });
+    private static client: MilvusClient | null = null;
     private static readonly COLLECTION_NAME = "interview_vectors";
 
+    private static getClient(): MilvusClient {
+        if (!this.client) {
+            try {
+                this.client = new MilvusClient({ address: ENV.MILVUS_ADDRESS });
+            } catch (error) {
+                logger.error("Failed to initialize Milvus client:", error);
+                throw new Error("Milvus service unavailable");
+            }
+        }
+        return this.client;
+    }
+
     static async initialize(): Promise<string | undefined> {
-        const isExistedCollection = await this.client.hasCollection({
+        const isExistedCollection = await this.getClient().hasCollection({
             collection_name: this.COLLECTION_NAME,
         });
 
@@ -33,7 +45,7 @@ export class MilvusService {
         }
 
         try {
-            await this.client.createCollection({
+            await this.getClient().createCollection({
                 collection_name: this.COLLECTION_NAME,
                 fields: [
                     {
@@ -56,7 +68,7 @@ export class MilvusService {
             });
 
             // Create index for vector field
-            await this.client.createIndex({
+            await this.getClient().createIndex({
                 collection_name: this.COLLECTION_NAME,
                 field_name: "vector",
                 index_type: "FLAT",
@@ -65,7 +77,7 @@ export class MilvusService {
             });
 
             // Load collection
-            await this.client.loadCollection({
+            await this.getClient().loadCollection({
                 collection_name: this.COLLECTION_NAME,
             });
 
@@ -102,7 +114,7 @@ export class MilvusService {
         try {
             const vector = await this.generateEmbedding(metadata.content);
 
-            await this.client.insert({
+            await this.getClient().insert({
                 collection_name: this.COLLECTION_NAME,
                 fields_data: [
                     {
@@ -126,7 +138,7 @@ export class MilvusService {
         try {
             const queryVector = await this.generateEmbedding(query);
 
-            const searchResults = await this.client.search({
+            const searchResults = await this.getClient().search({
                 collection_name: this.COLLECTION_NAME,
                 vector: queryVector,
                 search_params: {

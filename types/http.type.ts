@@ -14,3 +14,12 @@ export type ListWithPaginationResponse<T> = {
     data: T[];
     meta: PaginationResponse;
 };
+
+export interface ErrorResponse {
+    response?: {
+        status?: number;
+        data?: {
+            message?: string;
+        };
+    };
+}
