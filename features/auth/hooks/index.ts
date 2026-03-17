@@ -5,6 +5,9 @@ import { AUTH_QUERY_KEYS } from "@/features/auth/constants";
 import { UserManager } from "@/features/auth/utils/user";
 import { TokenManager } from "@/features/auth/utils/token";
 
+import { useAppDispatch } from "@/lib/store/hooks";
+import { setUser, clearUser } from "@/lib/store/slices/userSlice";
+
 import { LoginRequest, RegisterRequest, User } from "@/features/auth/types";
 
 export const useRegister = () => {
@@ -22,25 +25,30 @@ export const useRegister = () => {
 
 export const useLogin = () => {
     const queryClient = useQueryClient();
+    const dispatch = useAppDispatch();
 
     return useMutation({
         mutationFn: (data: LoginRequest) => authServices.login(data),
         onSuccess: (response) => {
-            const { user } = response.data;
+            const { user, tokens } = response.data;
 
             queryClient.setQueryData([AUTH_QUERY_KEYS.USER], user);
+            dispatch(setUser(user));
+            TokenManager.setTokens(tokens.accessToken, tokens.refreshToken);
         },
     });
 };
 
 export const useLogout = () => {
     const queryClient = useQueryClient();
+    const dispatch = useAppDispatch();
 
     return useMutation({
         mutationFn: () => authServices.logout(),
         onSuccess: () => {
             TokenManager.clearTokens();
             queryClient.clear();
+            dispatch(clearUser());
         },
     });
 };
@@ -74,7 +82,7 @@ export const useProfile = () => {
             const response = await authServices.getProfile();
             return response.data.profile;
         },
-        enabled: UserManager.isAuthenticated(),
+        enabled: !!UserManager.getUser(),
         staleTime: 5 * 60 * 1000, // 5 minutes
     });
 };
@@ -86,15 +94,4 @@ export const useUser = () => {
         initialData: UserManager.getUser(),
         staleTime: Infinity,
     });
-};
-
-export const useAuthStatus = () => {
-    const { data: user } = useUser();
-    const isAuthenticated = UserManager.isAuthenticated();
-
-    return {
-        isAuthenticated,
-        user,
-        isLoading: false, // Could be enhanced with loading states
-    };
 };

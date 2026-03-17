@@ -1,24 +1,18 @@
 import Cookies from "js-cookie";
 
-import { AUTH_STORAGE_KEYS } from "@/features/auth/constants";
-
 export class TokenManager {
     private static readonly ACCESS_TOKEN_COOKIE = "accessToken";
     private static readonly REFRESH_TOKEN_COOKIE = "refreshToken";
 
     static getAccessToken(): string | null {
-        if (typeof window === "undefined") return null;
         return Cookies.get(this.ACCESS_TOKEN_COOKIE) || null;
     }
 
     static getRefreshToken(): string | null {
-        if (typeof window === "undefined") return null;
         return Cookies.get(this.REFRESH_TOKEN_COOKIE) || null;
     }
 
     static setTokens(accessToken: string, refreshToken: string): void {
-        if (typeof window === "undefined") return;
-
         // Set cookies with security options
         Cookies.set(this.ACCESS_TOKEN_COOKIE, accessToken, {
             expires: 1 / 24, // 1 hour

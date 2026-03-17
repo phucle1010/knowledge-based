@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+
+import { handleDatabaseError } from "@/lib/utils/database-error-handler";
+import { logger } from "@/lib/utils/logger";
+
 import { AuthService } from "@/services/auth.service";
 
 export interface AuthenticatedRequest extends NextRequest {
@@ -9,24 +13,21 @@ export interface AuthenticatedRequest extends NextRequest {
     };
 }
 
-/**
- * API route context type for Next.js
- */
 interface ApiRouteContext {
     params: Promise<Record<string, string | string[]>>;
     searchParams?: URLSearchParams;
     [key: string]: unknown;
 }
 
-/**
- * Middleware to authenticate JWT tokens
- */
-export async function authenticateToken(request: NextRequest): Promise<{
+export const authenticateToken = async (
+    request: NextRequest
+): Promise<{
     user: { id: string; email: string; name: string } | null;
     response: NextResponse | null;
-}> {
+}> => {
     try {
-        const authHeader = request.headers.get("authorization");
+        const authHeader = request.headers.get("Authorization");
+
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return {
                 user: null,
@@ -67,12 +68,9 @@ export async function authenticateToken(request: NextRequest): Promise<{
             response: NextResponse.json({ error: "Authentication failed" }, { status: 401 }),
         };
     }
-}
+};
 
-/**
- * Higher-order function to protect API routes
- */
-export function withAuth(handler: (request: AuthenticatedRequest, context?: ApiRouteContext) => Promise<NextResponse>) {
+export const withAuth = (handler: (request: AuthenticatedRequest, context?: ApiRouteContext) => Promise<NextResponse>) => {
     return async (request: NextRequest, context?: ApiRouteContext): Promise<NextResponse> => {
         const { user, response } = await authenticateToken(request);
 
@@ -85,4 +83,4 @@ export function withAuth(handler: (request: AuthenticatedRequest, context?: ApiR
 
         return handler(request as AuthenticatedRequest, context);
     };
-}
+};

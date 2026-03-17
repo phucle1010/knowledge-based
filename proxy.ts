@@ -43,12 +43,14 @@ export async function proxy(request: NextRequest) {
     }
 
     // Check if user is on auth routes and has valid access token
-    if (isAuthRoute(request.nextUrl.pathname)) {
-        const accessToken = request.cookies.get("accessToken")?.value;
+    const accessToken = request.cookies.get("accessToken")?.value;
 
-        if (accessToken) {
-            return NextResponse.redirect(new URL("/dashboard", request.url));
-        }
+    if (isAuthRoute(request.nextUrl.pathname) && accessToken) {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
+    if (!isAuthRoute(request.nextUrl.pathname) && !accessToken) {
+        return NextResponse.redirect(new URL("/auth/login", request.url));
     }
 
     return NextResponse.next();
