@@ -21,23 +21,7 @@ export const POST = async (request: NextRequest) => {
         const response = NextResponse.json({
             message: "Login successful",
             user: authResponse.user,
-        });
-
-        // Set httpOnly cookies for tokens
-        response.cookies.set("accessToken", authResponse.tokens.accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 60 * 60, // 1 hour
-            path: "/",
-        });
-
-        response.cookies.set("refreshToken", authResponse.tokens.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60, // 7 days
-            path: "/",
+            tokens: authResponse.tokens,
         });
 
         return response;

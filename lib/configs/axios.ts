@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 
 import { ENV } from "@/lib/constants/env";
+import { logger } from "@/lib/utils/logger";
 
 import { TokenManager } from "@/features/auth/utils";
 
@@ -16,6 +17,7 @@ apiClient.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         // Add access token to headers if available
         const token = TokenManager.getAccessToken();
+        logger.info("Attaching access token to request:", token);
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }

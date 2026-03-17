@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { APP_NAME, APP_FULL_NAME } from "@/lib/constants/app";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -6,9 +8,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <div className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-slate-900 to-slate-800 text-white p-12">
                 <div>
                     <div className="flex items-center gap-2 mb-16">
-                        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                            <span className="text-slate-900 font-bold text-lg">AI</span>
-                        </div>
+                        <Image src="/logo/nexia.png" alt="Nexia Logo" width={40} height={40} className="object-contain" />
                         <div className="text-sm font-semibold">
                             <div>{APP_NAME.toUpperCase()}</div>
                             <div>INTERVIEW AI</div>

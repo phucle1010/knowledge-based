@@ -1,11 +1,11 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 import { withAuth, AuthenticatedRequest } from "@/lib/middlewares/auth";
 import { handleDatabaseError } from "@/lib/utils/database-error-handler";
 
 import { AuthService } from "@/services/auth.service";
 
-const handler = async (request: AuthenticatedRequest) => {
+export const GET = withAuth(async (request: AuthenticatedRequest) => {
     try {
         const userId = request.user!.id;
         const user = await AuthService.getProfile(userId);
@@ -20,6 +20,4 @@ const handler = async (request: AuthenticatedRequest) => {
     } catch (error) {
         return handleDatabaseError(error);
     }
-};
-
-export const GET = withAuth(handler);
+});

@@ -8,9 +8,4 @@ export class UserManager {
         if (!token) return null;
         return TokenManager.decodeUserFromToken(token);
     }
-
-    static isAuthenticated(): boolean {
-        const token = TokenManager.getAccessToken();
-        return token ? !TokenManager.isTokenExpired(token) : false;
-    }
 }
