@@ -1,25 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { validateRefreshToken } from "@/lib/validators/auth";
-
 import { AuthService } from "@/services/auth.service";
 
 export const POST = async (request: NextRequest) => {
     try {
-        const body = await request.json();
-        const validation = validateRefreshToken(body);
+        // Get refresh token from cookie
+        const refreshToken = request.cookies.get("refreshToken")?.value;
 
-        if (!validation.success) {
-            return NextResponse.json({ error: "Validation failed", details: validation.error.issues }, { status: 400 });
+        if (refreshToken) {
+            await AuthService.logout(refreshToken);
         }
 
-        const { refreshToken } = validation.data;
-
-        await AuthService.logout(refreshToken);
-
-        return NextResponse.json({
+        // Create response
+        const response = NextResponse.json({
             message: "Logout successful",
         });
+
+        // Clear cookies
+        response.cookies.set("accessToken", "", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 0,
+            path: "/",
+        });
+
+        response.cookies.set("refreshToken", "", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 0,
+            path: "/",
+        });
+
+        return response;
     } catch (error) {
         const message = error instanceof Error ? error.message : "Logout failed";
         return NextResponse.json({ error: message }, { status: 500 });

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 import { withAuth, AuthenticatedRequest } from "@/lib/middlewares/auth";
 import { handleDatabaseError } from "@/lib/utils/database-error-handler";

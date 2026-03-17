@@ -13,7 +13,7 @@ export interface AuthenticatedRequest extends NextRequest {
  * API route context type for Next.js
  */
 interface ApiRouteContext {
-    params?: Record<string, string | string[]>;
+    params: Promise<Record<string, string | string[]>>;
     searchParams?: URLSearchParams;
     [key: string]: unknown;
 }

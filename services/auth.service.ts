@@ -8,7 +8,7 @@ import { logger } from "@/lib/utils/logger";
 
 import { MongoService } from "@/services/mongo.service";
 
-import { User, AuthTokens, AuthResponse } from "@/types/auth.type";
+import { User, AuthTokens, AuthResponse } from "@/features/auth/types";
 
 export class AuthService {
     /**

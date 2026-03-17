@@ -1,4 +1,4 @@
-import { forgotPasswordSchema, loginSchema, refreshTokenSchema, registerSchema, resetPasswordSchema } from "@/types/auth.type";
+import { forgotPasswordSchema, loginSchema, refreshTokenSchema, registerSchema, resetPasswordSchema } from "@/features/auth/types";
 
 export const validateRegister = (data: unknown) => {
     return registerSchema.safeParse(data);

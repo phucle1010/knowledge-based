@@ -17,10 +17,30 @@ export const POST = async (request: NextRequest) => {
 
         const authResponse = await AuthService.login(email, password);
 
-        return NextResponse.json({
+        // Create response with user data (without tokens)
+        const response = NextResponse.json({
             message: "Login successful",
-            ...authResponse,
+            user: authResponse.user,
         });
+
+        // Set httpOnly cookies for tokens
+        response.cookies.set("accessToken", authResponse.tokens.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 60 * 60, // 1 hour
+            path: "/",
+        });
+
+        response.cookies.set("refreshToken", authResponse.tokens.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60, // 7 days
+            path: "/",
+        });
+
+        return response;
     } catch (error) {
         const message = error instanceof Error ? error.message : "Login failed";
         return NextResponse.json({ error: message }, { status: 401 });
