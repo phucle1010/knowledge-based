@@ -6,5 +6,5 @@ export const metadata: Metadata = {
 };
 
 export default function RegisterLayout({ children }: { children: React.ReactNode }) {
-    return <div className="w-full min-h-screen">{children}</div>;
+    return <div className="w-full h-full">{children}</div>;
 }
