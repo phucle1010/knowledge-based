@@ -17,17 +17,19 @@ const inter = Inter({
     subsets: ["latin"],
 });
 
+import { APP_FULL_NAME } from "@/lib/constants/app";
+
 export const metadata: Metadata = {
-    title: "Knowledge-Based Interview AI",
+    title: APP_FULL_NAME,
     description: "AI-powered interview assistant with vector search, session tracking, and secure authentication.",
     openGraph: {
-        title: "Knowledge-Based Interview AI",
+        title: APP_FULL_NAME,
         description: "AI-assisted technical interview preparation with smart scoring, feedback, and secure user accounts.",
         type: "website",
     },
     twitter: {
         card: "summary_large_image",
-        title: "Knowledge-Based Interview AI",
+        title: APP_FULL_NAME,
         description: "AI interview assistant powered by vector search and secure authentication.",
     },
 };

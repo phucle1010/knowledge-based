@@ -1,3 +1,6 @@
+export const APP_NAME = "Nexia";
+export const APP_FULL_NAME = "Nexia Interview AI";
+
 const NAME_MIN_LENGTH = 1;
 const NAME_MAX_LENGTH = 100;
 
