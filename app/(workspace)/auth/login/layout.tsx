@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { APP_FULL_NAME } from "@/lib/constants/app";
 
 export const metadata: Metadata = {
-    title: "Login - Knowledge-Based Interview AI",
+    title: `Login - ${APP_FULL_NAME}`,
     description: "Sign in to your account to access AI-powered interview preparation tools with vector search and secure authentication.",
 };
 

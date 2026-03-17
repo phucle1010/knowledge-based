@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
+import { APP_FULL_NAME } from "@/lib/constants/app";
+
 export const metadata: Metadata = {
-    title: "Workspace | Knowledge-Based Interview AI",
+    title: `Workspace | ${APP_FULL_NAME}`,
     description: "Workspace area for managing interviews, questions, and user sessions.",
 };
 

@@ -1,4 +1,4 @@
-# Knowledge-Based Interview AI System
+# Nexia Interview AI System
 
 ![AI Core System](./public/system/AI-core-design.png)
 

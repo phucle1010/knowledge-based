@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
 
+import { APP_NAME } from "@/lib/constants/app";
+
 import { RegisterForm } from "@/features/auth/components";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -16,7 +18,7 @@ export default function RegisterPage() {
                                 <span className="text-white font-bold text-sm">AI</span>
                             </div>
                             <div className="text-xs font-semibold text-slate-900">
-                                <div>KNOWLEDGE-BASED</div>
+                                <div>{APP_NAME.toUpperCase()}</div>
                                 <div>INTERVIEW AI</div>
                             </div>
                         </div>

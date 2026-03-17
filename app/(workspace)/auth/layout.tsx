@@ -1,3 +1,5 @@
+import { APP_NAME, APP_FULL_NAME } from "@/lib/constants/app";
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-2">
@@ -8,7 +10,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                             <span className="text-slate-900 font-bold text-lg">AI</span>
                         </div>
                         <div className="text-sm font-semibold">
-                            <div>KNOWLEDGE-BASED</div>
+                            <div>{APP_NAME.toUpperCase()}</div>
                             <div>INTERVIEW AI</div>
                         </div>
                     </div>
@@ -25,7 +27,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                         </p>
                     </div>
                 </div>
-                <div className="text-sm text-slate-400">© 2024 Knowledge-Based Interview AI. All rights reserved.</div>
+                <div className="text-sm text-slate-400">© 2024 {APP_FULL_NAME}. All rights reserved.</div>
             </div>
 
             <div className="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-12 py-12 bg-white">{children}</div>
