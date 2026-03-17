@@ -3,6 +3,21 @@ import type { NextRequest } from "next/server";
 
 import { ratelimiter } from "@/lib/middlewares/rate-limiter";
 
+const isAuthRoute = (pathname: string): boolean => {
+    return pathname === "/auth/login" || pathname === "/auth/register";
+};
+
+const shouldSkipRedirect = (pathname: string): boolean => {
+    return (
+        pathname.startsWith("/api") ||
+        pathname.startsWith("/_next/static") ||
+        pathname.startsWith("/_next/image") ||
+        pathname === "/favicon.ico" ||
+        pathname.startsWith("/assets") ||
+        pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp)$/i) !== null
+    );
+};
+
 export async function proxy(request: NextRequest) {
     if (request.nextUrl.pathname.startsWith("/api")) {
         const ip = request.headers.get("x-forwarded-for")?.split(",")[0] ?? "127.0.0.1";
@@ -19,6 +34,20 @@ export async function proxy(request: NextRequest) {
                     "X-RateLimit-Reset": reset.toString(),
                 },
             });
+        }
+    }
+
+    // Skip redirect logic for API routes, assets, and images
+    if (shouldSkipRedirect(request.nextUrl.pathname)) {
+        return NextResponse.next();
+    }
+
+    // Check if user is on auth routes and has valid access token
+    if (isAuthRoute(request.nextUrl.pathname)) {
+        const accessToken = request.cookies.get("accessToken")?.value;
+
+        if (accessToken) {
+            return NextResponse.redirect(new URL("/dashboard", request.url));
         }
     }
 
