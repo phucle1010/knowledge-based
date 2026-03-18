@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 import { ratelimiter } from "@/lib/middlewares/rate-limiter";
 
 const isAuthRoute = (pathname: string): boolean => {
-    return pathname === "/auth/login" || pathname === "/auth/register";
+    return pathname.startsWith("/auth");
 };
 
 const shouldSkipRedirect = (pathname: string): boolean => {
@@ -18,7 +18,7 @@ const shouldSkipRedirect = (pathname: string): boolean => {
     );
 };
 
-export async function proxy(request: NextRequest) {
+export const proxy = async (request: NextRequest) => {
     if (request.nextUrl.pathname.startsWith("/api")) {
         const ip = request.headers.get("x-forwarded-for")?.split(",")[0] ?? "127.0.0.1";
 
@@ -54,7 +54,7 @@ export async function proxy(request: NextRequest) {
     }
 
     return NextResponse.next();
-}
+};
 
 export const config = {
     matcher: [
