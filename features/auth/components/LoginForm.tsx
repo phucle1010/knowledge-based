@@ -103,7 +103,6 @@ export const LoginForm = ({ onSuccess, redirectTo = "/dashboard" }: LoginFormPro
                 </Link>
             </div>
 
-            {/* Error Alert */}
             {errors.root && (
                 <Alert variant="destructive" className="mt-4">
                     <AlertDescription>{errors.root.message}</AlertDescription>
@@ -116,7 +115,7 @@ export const LoginForm = ({ onSuccess, redirectTo = "/dashboard" }: LoginFormPro
                 className="w-full h-10 mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition-colors"
                 disabled={isSubmitting || login.isPending}
             >
-                {isSubmitting || login.isPending ? "SIGNING IN..." : "SIGN IN"}
+                {isSubmitting || login.isPending ? "Signing In..." : "Sign In"}
             </Button>
         </form>
     );

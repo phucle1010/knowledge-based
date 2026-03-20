@@ -16,18 +16,18 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                     </div>
                     <div className="space-y-4">
                         <h1 className="text-4xl font-bold leading-tight">
-                            ELEVATE YOUR
-                            <br />
+                            Nexia <br /> Your AI Interview Coach
+                            {/* <br />
                             INTERVIEWING WITH
                             <br />
-                            AI-POWERED INSIGHTS
+                            AI-POWERED INSIGHTS */}
                         </h1>
                         <p className="text-lg text-slate-300 leading-relaxed">
-                            Leverage advanced vector search, secure authentication, and precise session tracking for intelligent technical interviews.
+                            Get real-time feedback and smart answers to help you ace your next job interview with confidence.
                         </p>
                     </div>
                 </div>
-                <div className="text-sm text-slate-400">© 2024 {APP_FULL_NAME}. All rights reserved.</div>
+                <div className="text-sm text-slate-400">© 2026 {APP_FULL_NAME}. All rights reserved.</div>
             </div>
 
             <div className="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-12 py-12 bg-white">{children}</div>

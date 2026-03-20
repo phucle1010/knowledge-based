@@ -22,11 +22,14 @@ export default function LoginPage() {
                                 <div>INTERVIEW AI</div>
                             </div>
                         </div>
-                        <CardTitle className="text-3xl font-bold text-slate-900">Sign In to Your Account</CardTitle>
-                        <CardDescription className="text-base text-slate-600">Enter your credentials to access the platform.</CardDescription>
+                        <CardTitle className="text-3xl font-bold text-slate-900">Welcome Back!</CardTitle>
+                        <CardDescription className="text-base text-slate-600">
+                            Sign in to continue your journey toward your dream job.
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <LoginForm />
+
                         <div className="pt-4 space-y-4">
                             <div className="text-center text-sm text-slate-600">
                                 Don&apos;t have an account?{" "}

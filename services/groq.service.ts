@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 
 import { InterviewMessageModel, InterviewSessionModel } from "@/lib/schemas/interview";
 import { ENV } from "@/lib/constants/env";
+import { logger } from "@/lib/utils/logger";
 
 import { MongoService } from "@/services/mongo.service";
 import { MilvusService } from "@/services/milvus.service";
 
 import { InterviewLevel, InterviewLanguage } from "@/types/interview.type";
-import { logger } from "@zilliz/milvus2-sdk-node";
 
 interface GroqMessage {
     role: "system" | "user" | "assistant";
