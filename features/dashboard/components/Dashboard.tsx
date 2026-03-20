@@ -1,12 +1,11 @@
 "use client";
 
-import { Loader2, MessageSquare, Package, User } from "lucide-react";
+import { Loader2, MessageSquare, Package } from "lucide-react";
 
 import { useAppSelector } from "@/lib/store/hooks";
 
 import { useDashboardStats } from "@/features/dashboard/hooks/useDashboardStats";
 import { StatCard } from "@/features/dashboard/components";
-import { UserProfile } from "@/features/auth/components/UserProfile";
 
 export const Dashboard = () => {
     const { data, isLoading, isError } = useDashboardStats();
@@ -25,7 +24,7 @@ export const Dashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 py-12 px-6">
+        <div>
             <div className="mx-auto w-full max-w-6xl">
                 <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                     <div>
@@ -33,12 +32,6 @@ export const Dashboard = () => {
                         <p className="mt-1 text-sm text-slate-600">Here is a quick summary of your usage and recent activity.</p>
                     </div>
                     <div className="mt-4 flex gap-3 sm:mt-0">
-                        {/* <button className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-slate-200 hover:bg-slate-50">
-                            <User className="h-4 w-4" />
-                            Profile
-                        </button> */}
-                        <UserProfile />
-
                         <button className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-slate-200 hover:bg-slate-50">
                             <MessageSquare className="h-4 w-4" />
                             Messages
