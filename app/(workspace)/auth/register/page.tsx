@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 import { APP_NAME } from "@/lib/constants/app";
 
@@ -14,14 +15,12 @@ export default function RegisterPage() {
             <div className="w-full h-full flex items-center justify-center">
                 <Card className="w-full max-w-md border-0 shadow-lg">
                     <CardHeader className="space-y-2 pb-8">
-                        {/* Mobile Logo */}
                         <div className="lg:hidden flex items-center gap-2 mb-4">
-                            <div className="w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center">
-                                <span className="text-white font-bold text-sm">AI</span>
-                            </div>
-                            <div className="text-xs font-semibold text-slate-900">
-                                <div>{APP_NAME.toUpperCase()}</div>
-                                <div>INTERVIEW AI</div>
+                            <Image src="/logo/nexia.png" alt="Nexia Logo" width={32} height={32} className="object-contain" />
+
+                            <div className="flex flex-col gap-1">
+                                <span className="text-lg font-bold tracking-tighter leading-none">{APP_NAME}</span>
+                                <span className="text-sm font-medium tracking-[0.2em] text-blue-800 leading-none">INTERVIEW AI</span>
                             </div>
                         </div>
                         <CardTitle className="text-3xl font-bold text-slate-900">Let’s Get You Started!</CardTitle>
