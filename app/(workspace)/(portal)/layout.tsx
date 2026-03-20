@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 
 import { APP_FULL_NAME } from "@/lib/constants/app";
 
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/ui/app-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/layout/app-sidebar";
+import { AppHeader } from "@/components/layout/app-header";
 
 export const metadata: Metadata = {
     title: `Portal | ${APP_FULL_NAME}`,
@@ -19,8 +20,9 @@ export default function PortalLayout({
         <SidebarProvider>
             <AppSidebar />
             <main className="flex-1">
-                <SidebarTrigger />
-                {children}
+                <AppHeader />
+
+                <div className="min-h-screen w-full bg-slate-50 py-12 px-6">{children}</div>
             </main>
         </SidebarProvider>
     );

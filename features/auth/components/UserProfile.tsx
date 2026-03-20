@@ -1,5 +1,8 @@
-import { User } from "lucide-react";
+"use client";
+
+import React from "react";
 import { useRouter } from "next/navigation";
+import { User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +16,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLogout } from "@/features/auth/hooks";
 
-export const UserProfile = () => {
+type UserProfileProps = {
+    userName?: string;
+};
+
+export const UserProfile: React.FC<UserProfileProps> = ({ userName }) => {
     const router = useRouter();
     const { mutateAsync: mutateLogout, isPending } = useLogout();
 
@@ -22,15 +29,17 @@ export const UserProfile = () => {
         router.push("/auth/login");
     };
 
+    if (!userName) return null;
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="outline"
-                    className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-slate-200 hover:bg-slate-50 h-9.5"
+                    className="flex items-center gap-2 rounded-md border border-transparent bg-white px-2 py-1 hover:bg-slate-50"
                 >
-                    <User className="h-4 w-4" />
-                    Profile
+                    <User size={16} />
+                    <span className="text-sm font-medium text-slate-700">{userName}</span>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>

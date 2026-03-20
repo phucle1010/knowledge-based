@@ -4,9 +4,9 @@ import Link from "next/link";
 import { APP_NAME } from "@/lib/constants/app";
 import { NAVBARS } from "@/lib/constants/urls";
 
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenuItem } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from "@/components/ui/sidebar";
 
-export function AppSidebar() {
+export const AppSidebar = () => {
     return (
         <Sidebar>
             <SidebarHeader className="flex flex-row items-center gap-2">
@@ -16,9 +16,9 @@ export function AppSidebar() {
                     <div>INTERVIEW AI</div>
                 </div>
             </SidebarHeader>
-            <SidebarContent className="flex flex-col gap-3 mt-4">
+            <SidebarContent className="flex flex-col gap-2 mt-4">
                 {NAVBARS.map((navbar) => (
-                    <Link key={navbar.url} href={navbar.url} className="flex items-center gap-2 px-2 py-3">
+                    <Link key={navbar.url} href={navbar.url} className="flex items-center gap-2 p-2">
                         {navbar.icon}
                         {navbar.label}
                     </Link>
@@ -27,4 +27,4 @@ export function AppSidebar() {
             <SidebarFooter />
         </Sidebar>
     );
-}
+};

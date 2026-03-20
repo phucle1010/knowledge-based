@@ -17,7 +17,7 @@ apiClient.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         // Add access token to headers if available
         const token = TokenManager.getAccessToken();
-        logger.info("Attaching access token to request:", token);
+
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
