@@ -22,8 +22,10 @@ export default function RegisterPage() {
                                 <div>INTERVIEW AI</div>
                             </div>
                         </div>
-                        <CardTitle className="text-3xl font-bold text-slate-900">Create Your Account</CardTitle>
-                        <CardDescription className="text-base text-slate-600">Enter your information to get started on the platform.</CardDescription>
+                        <CardTitle className="text-3xl font-bold text-slate-900">Let’s Get You Started!</CardTitle>
+                        <CardDescription className="text-base text-slate-600">
+                            Just a few details to unlock your personalized AI interview coach.
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <RegisterForm />
