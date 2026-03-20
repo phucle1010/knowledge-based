@@ -53,6 +53,10 @@ export const proxy = async (request: NextRequest) => {
         return NextResponse.redirect(new URL("/auth/login", request.url));
     }
 
+    if (request.nextUrl.pathname === "/" && accessToken) {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
     return NextResponse.next();
 };
 
