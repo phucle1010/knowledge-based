@@ -4,6 +4,8 @@ import { Loader2, MessageSquare, Package } from "lucide-react";
 
 import { useAppSelector } from "@/lib/store/hooks";
 
+import { GlobalLoading } from "@/components/shared/GlobalLoading";
+
 import { useDashboardStats } from "@/features/dashboard/hooks/useDashboardStats";
 import { StatCard } from "@/features/dashboard/components";
 
@@ -11,16 +13,10 @@ export const Dashboard = () => {
     const { data, isLoading, isError } = useDashboardStats();
 
     const user = useAppSelector((state) => state.userReducer.user);
-    const loading = useAppSelector((state) => state.userReducer.isLoading);
+    const userLoading = useAppSelector((state) => state.userReducer.isLoading);
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <p className="text-lg font-medium">Initializing...</p>
-                </div>
-            </div>
-        );
+    if (userLoading || isLoading) {
+        return <GlobalLoading />;
     }
 
     return (

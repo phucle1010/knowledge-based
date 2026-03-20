@@ -1,8 +1,10 @@
 import { Suspense } from "react";
 
+import { GlobalLoading } from "@/components/shared/GlobalLoading";
+
 export default function DashboardPage() {
     return (
-        <Suspense fallback={<div className="w-full h-screen flex items-center justify-center">Loading...</div>}>
+        <Suspense fallback={<GlobalLoading />}>
             <div>Welcome to Nexia Interview</div>
         </Suspense>
     );

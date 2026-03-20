@@ -3,12 +3,14 @@ import Link from "next/link";
 
 import { APP_NAME } from "@/lib/constants/app";
 
-import { RegisterForm } from "@/features/auth/components";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlobalLoading } from "@/components/shared/GlobalLoading";
+
+import { RegisterForm } from "@/features/auth/components";
 
 export default function RegisterPage() {
     return (
-        <Suspense fallback={<div className="w-full h-screen flex items-center justify-center">Loading...</div>}>
+        <Suspense fallback={<GlobalLoading />}>
             <div className="w-full h-full flex items-center justify-center">
                 <Card className="w-full max-w-md border-0 shadow-lg">
                     <CardHeader className="space-y-2 pb-8">
